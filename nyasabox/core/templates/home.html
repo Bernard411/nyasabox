@@ -1185,6 +1185,16 @@
                         <span>Energy Boost</span>
                     </div>
                 </div>
+                 {% if messages %}
+                {% for message in messages %}
+                    <div class="notification notification-{{ message.tags }}">
+                        <span class="material-icons">
+                            {% if message.tags == 'error' %}error{% else %}check_circle{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
             </div>
         </div>
         <!-- Main Content -->
@@ -1225,16 +1235,7 @@
                     </div>
                     {% endif %}
                 </div>
-                {% if messages %}
-                {% for message in messages %}
-                    <div class="notification notification-{{ message.tags }}">
-                        <span class="material-icons">
-                            {% if message.tags == 'error' %}error{% else %}check_circle{% endif %}
-                        </span>
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
-            {% endif %}
+               
             </div>
 
             <!-- Hero Section with Carousel -->
