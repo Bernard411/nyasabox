@@ -1,0 +1,18 @@
+
+{% block content %}
+<h1>Artist Profile</h1>
+<h3>{{ artist.user.username }}</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>
+<h4 class="mt-4">Your Songs</h4>
+<ul>
+    {% for song in artist.songs.all %}
+        <li>{{ song.title }} ({{ song.genre }}) - Downloads: {{ song.download_count }}</li>
+    {% empty %}
+        <li>No songs uploaded yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

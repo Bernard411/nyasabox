@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundWave Pro - Artist Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow-x: hidden;
+            font-size: 1rem;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(145deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%);
+            --bg-primary: rgba(10, 10, 10, 0.95);
+            --bg-secondary: rgba(26, 26, 46, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --accent-primary: #ff6b6b;
+            --accent-secondary: #4ecdc4;
+            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-light: 0 0.25rem 1.25rem rgba(255, 107, 107, 0.15);
+            --shadow-heavy: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.3);
+            --blur-bg: blur(1.25rem);
+        }
+
+        body.light-mode {
+            --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 70%, #94a3b8 100%);
+            --bg-primary: rgba(248, 250, 252, 0.95);
+            --bg-secondary: rgba(226, 232, 240, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e293b;
+            --text-secondary: rgba(30, 41, 59, 0.8);
+            --text-muted: rgba(30, 41, 59, 0.6);
+            --border-color: rgba(30, 41, 59, 0.1);
+            --shadow-light: 0 0.25rem 1.25rem rgba(255, 107, 107, 0.2);
+            --shadow-heavy: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-container {
+            max-width: 80rem;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .sidebar {
+            background: var(--bg-card);
+            backdrop-filter: var(--blur-bg);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--accent-gradient);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 0.25rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(0.5rem);
+        }
+
+        .nav-item.active {
+            background: var(--bg-card-hover);
+            color: var(--accent-primary);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .section {
+            background: var(--bg-card);
+            backdrop-filter: var(--blur-bg);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .section-title {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 0.125rem var(--accent-primary);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 0.8rem;
+            display: none;
+            margin-top: 0.25rem;
+        }
+
+        .upload-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 1.5rem;
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-0.125rem);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .analytics-card {
+            background: var(--bg-card-hover);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-0.25rem);
+            box-shadow: var(--shadow-light);
+        }
+
+        .analytics-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .analytics-card p {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 40rem;
+            margin: 0 auto;
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .track-item {
+            display: grid;
+            grid-template-columns: 1fr 10rem 5rem 5rem;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: var(--bg-card);
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .track-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .track-info {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .track-action {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            background: var(--accent-primary);
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .track-action:hover {
+            background: var(--accent-secondary);
+            transform: scale(1.05);
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: #2ed573;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+            backdrop-filter: var(--blur-bg);
+            box-shadow: var(--shadow-heavy);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .notification-error {
+            background: #ff4757;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-0.125rem);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 0.95; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 0.95; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 60.5rem) {
+            html {
+                font-size: 15px;
+            }
+
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+        }
+
+        @media (max-width: 40rem) {
+            html {
+                font-size: 14px;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .track-item {
+                grid-template-columns: 1fr 8rem 4rem;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .track-item .track-action:nth-child(4) {
+                display: none;
+            }
+
+            .chart-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 30rem) {
+            html {
+                font-size: 13px;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .form-group input {
+                padding: 0.5rem;
+            }
+
+            .upload-btn {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">
+        <span class="material-icons">dark_mode</span>
+        <span>Theme</span>
+    </button>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-icons">waves</span>
+                </div>
+                <div class="logo-text">SoundWave</div>
+            </div>
+            <div class="nav-item active">
+                <span class="material-icons">dashboard</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item">
+                <span class="material-icons">music_note</span>
+                <span>Upload Music</span>
+            </div>
+            <div class="nav-item">
+                <span class="material-icons">bar_chart</span>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item">
+                <span class="material-icons">share</span>
+                <span>Share Tracks</span>
+            </div>
+            <div class="nav-item">
+                <span class="material-icons">person</span>
+                <span>Profile</span>
+            </div>
+            <div class="nav-item">
+                <span class="material-icons">logout</span>
+                <a href="auth.html">Logout</a>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="section">
+                <h2 class="section-title">Upload New Track</h2>
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="trackFile">Audio File (MP3/WAV)</label>
+                        <input type="file" id="trackFile" accept="audio/mp3,audio/wav" required aria-describedby="trackFileError">
+                        <span id="trackFileError" class="error-message">Please select a valid audio file</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="trackTitle">Track Title</label>
+                        <input type="text" id="trackTitle" placeholder="Enter track title" required minlength="2" aria-describedby="trackTitleError">
+                        <span id="trackTitleError" class="error-message">Title must be at least 2 characters</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="artistName">Artist Name</label>
+                        <input type="text" id="artistName" placeholder="Enter artist name" required minlength="2" aria-describedby="artistNameError">
+                        <span id="artistNameError" class="error-message">Artist name must be at least 2 characters</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="albumArt">Album Art (Optional)</label>
+                        <input type="file" id="albumArt" accept="image/*" aria-describedby="albumArtError">
+                        <span id="albumArtError" class="error-message">Please select a valid image file</span>
+                    </div>
+                    <button type="submit" class="upload-btn">
+                        <span class="material-icons">cloud_upload</span>
+                        Upload Track
+                    </button>
+                </form>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Analytics Overview</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Total Plays</h3>
+                        <p id="totalPlays">0</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Total Shares</h3>
+                        <p id="totalShares">0</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Total Downloads</h3>
+                        <p id="totalDownloads">0</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="playsChart"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Your Tracks</h2>
+                <div class="track-list" id="trackList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ArtistDashboard {
+            constructor() {
+                this.uploadForm = document.getElementById('uploadForm');
+                this.trackList = document.getElementById('trackList');
+                this.totalPlays = document.getElementById('totalPlays');
+                this.totalShares = document.getElementById('totalShares');
+                this.totalDownloads = document.getElementById('totalDownloads');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.tracks = JSON.parse(localStorage.getItem('tracks')) || [];
+                this.analytics = JSON.parse(localStorage.getItem('analytics')) || {
+                    plays: 0,
+                    shares: 0,
+                    downloads: 0,
+                    playsData: [0, 0, 0, 0, 0, 0, 7] // Mock data for last 7 days
+                };
+                this.setupEventListeners();
+                this.renderTracks();
+                this.renderAnalytics();
+                this.initChart();
+                this.setTheme();
+            }
+
+            setupEventListeners() {
+                this.uploadForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleUpload();
+                });
+
+                this.themeToggle.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('share-btn')) {
+                        this.handleShare(e.target.dataset.id);
+                    } else if (e.target.classList.contains('download-btn')) {
+                        this.handleDownload(e.target.dataset.id);
+                    }
+                });
+            }
+
+            validateFile(file, types) {
+                return file && types.some(type => file.type.includes(type));
+            }
+
+            showError(inputId, show) {
+                document.getElementById(`${inputId}Error`).style.display = show ? 'block' : 'none';
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <span class="material-icons">${type === 'error' ? 'error' : 'check_circle'}</span>
+                    <span>${message}</span>
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            handleUpload() {
+                const trackFile = document.getElementById('trackFile').files[0];
+                const trackTitle = document.getElementById('trackTitle').value;
+                const artistName = document.getElementById('artistName').value;
+                const albumArt = document.getElementById('albumArt').files[0];
+
+                let valid = true;
+                if (!this.validateFile(trackFile, ['audio/mp3', 'audio/wav'])) {
+                    this.showError('trackFile', true);
+                    valid = false;
+                } else {
+                    this.showError('trackFile', false);
+                }
+
+                if (trackTitle.length < 2) {
+                    this.showError('trackTitle', true);
+                    valid = false;
+                } else {
+                    this.showError('trackTitle', false);
+                }
+
+                if (artistName.length < 2) {
+                    this.showError('artistName', true);
+                    valid = false;
+                } else {
+                    this.showError('artistName', false);
+                }
+
+                if (albumArt && !this.validateFile(albumArt, ['image/'])) {
+                    this.showError('albumArt', true);
+                    valid = false;
+                } else {
+                    this.showError('albumArt', false);
+                }
+
+                if (valid) {
+                    const trackId = Date.now().toString();
+                    const track = {
+                        id: trackId,
+                        title: trackTitle,
+                        artist: artistName,
+                        file: trackFile.name, // Mock file storage
+                        art: albumArt ? URL.createObjectURL(albumArt) : null,
+                        plays: 0,
+                        shares: 0,
+                        downloads: 0
+                    };
+                    this.tracks.push(track);
+                    localStorage.setItem('tracks', JSON.stringify(this.tracks));
+                    this.analytics.plays += 0;
+                    this.analytics.shares += 0;
+                    this.analytics.downloads += 0;
+                    localStorage.setItem('analytics', JSON.stringify(this.analytics));
+                    this.renderTracks();
+                    this.renderAnalytics();
+                    this.showNotification('Track uploaded successfully!');
+                    this.uploadForm.reset();
+                } else {
+                    this.showNotification('Please correct the errors in the form.', 'error');
+                }
+            }
+
+            handleShare(trackId) {
+                const track = this.tracks.find(t => t.id === trackId);
+                if (track) {
+                    track.shares += 1;
+                    this.analytics.shares += 1;
+                    localStorage.setItem('tracks', JSON.stringify(this.tracks));
+                    localStorage.setItem('analytics', JSON.stringify(this.analytics));
+                    this.renderAnalytics();
+                    const shareLink = `https://soundwavepro.com/track/${trackId}`;
+                    navigator.clipboard.writeText(shareLink).then(() => {
+                        this.showNotification('Share link copied to clipboard!');
+                    });
+                }
+            }
+
+            handleDownload(trackId) {
+                const track = this.tracks.find(t => t.id === trackId);
+                if (track) {
+                    track.downloads += 1;
+                    this.analytics.downloads += 1;
+                    localStorage.setItem('tracks', JSON.stringify(this.tracks));
+                    localStorage.setItem('analytics', JSON.stringify(this.analytics));
+                    this.renderAnalytics();
+                    // Simulate download
+                    const a = document.createElement('a');
+                    a.href = '#'; // Replace with actual file URL in production
+                    a.download = track.file;
+                    a.click();
+                    this.showNotification('Download initiated!');
+                }
+            }
+
+            renderTracks() {
+                this.trackList.innerHTML = '';
+                this.tracks.forEach(track => {
+                    const trackItem = document.createElement('div');
+                    trackItem.className = 'track-item';
+                    trackItem.innerHTML = `
+                        <div class="track-info">${track.title} by ${track.artist}</div>
+                        <div class="track-info">${track.plays} plays</div>
+                        <button class="track-action share-btn" data-id="${track.id}">Share</button>
+                        <button class="track-action download-btn" data-id="${track.id}">Download</button>
+                    `;
+                    this.trackList.appendChild(trackItem);
+                });
+            }
+
+            renderAnalytics() {
+                this.totalPlays.textContent = this.analytics.plays;
+                this.totalShares.textContent = this.analytics.shares;
+                this.totalDownloads.textContent = this.analytics.downloads;
+                this.updateChart();
+            }
+
+            initChart() {
+                this.chart = new Chart(document.getElementById('playsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['6d ago', '5d ago', '4d ago', '3d ago', '2d ago', 'Yesterday', 'Today'],
+                        datasets: [{
+                            label: 'Plays',
+                            data: this.analytics.playsData,
+                            backgroundColor: 'var(--accent-primary)',
+                            borderColor: 'var(--accent-secondary)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            updateChart() {
+                this.chart.data.datasets[0].data = this.analytics.playsData;
+                this.chart.update();
+            }
+
+            toggleTheme() {
+                const isLightMode = document.body.classList.toggle('light-mode');
+                const themeIcon = this.themeToggle.querySelector('.material-icons');
+                themeIcon.textContent = isLightMode ? 'light_mode' : 'dark_mode';
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                this.showNotification(`Switched to ${isLightMode ? 'light' : 'dark'} mode`);
+            }
+
+            setTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-mode');
+                    this.themeToggle.querySelector('.material-icons').textContent = 'light_mode';
+                }
+            }
+        }
+
+        // Include Chart.js from CDN
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = () => {
+            new ArtistDashboard();
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

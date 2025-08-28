@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundWave Pro</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "music/troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        /* Same CSS as provided in the original HTML */
+        {% include 'styles.css' %}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-icons">waves</span>
+                </div>
+                <div class="logo-text">SoundWave</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-item active">
+                    <span class="material-icons">home</span>
+                    <a href="{% url 'home' %}">Home</a>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">search</span>
+                    <span>Search</span>
+                </div>
+                {% if user.is_authenticated %}
+                <div class="nav-item">
+                    <span class="material-icons">cloud_upload</span>
+                    <a href="{% url 'upload_song' %}">Upload Song</a>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">person</span>
+                    <a href="{% url 'artist_profile' %}">Profile</a>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">logout</span>
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+                {% else %}
+                <div class="nav-item">
+                    <span class="material-icons">login</span>
+                    <a href="{% url 'login' %}">Login</a>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">person_add</span>
+                    <a href="{% url 'register' %}">Register</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <span class="material-icons">menu</span>
+                    </button>
+                    <div class="nav-arrows">
+                        <button class="nav-arrow" id="backBtn">
+                            <span class="material-icons">chevron_left</span>
+                        </button>
+                        <button class="nav-arrow" id="forwardBtn">
+                            <span class="material-icons">chevron_right</span>
+                        </button>
+                    </div>
+                    <div class="search-container">
+                        <span class="material-icons search-icon">search</span>
+                        <input type="text" class="search-input" placeholder="What do you want to listen to?" id="searchInput">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <span class="material-icons">dark_mode</span>
+                        <span>Theme</span>
+                    </button>
+                    {% if user.is_authenticated %}
+                    <div class="user-avatar" id="userAvatar">
+                        {{ user.username|slice:":2"|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Content -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="notification notification-{{ message.tags }}">
+                        <span class="material-icons">
+                            {% if message.tags == 'error' %}error{% else %}check_circle{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Player -->
+    <div class="player" id="player">
+        <div class="player-left">
+            <div class="current-cover" id="currentCover">
+                <span class="material-icons">music_note</span>
+            </div>
+            <div class="current-info">
+                <div class="current-title" id="currentTitle">Select a song</div>
+                <div class="current-artist" id="currentArtist">Unknown Artist</div>
+            </div>
+        </div>
+        <div class="player-center">
+            <div class="player-controls">
+                <button class="control-btn" id="shuffleBtn" title="Shuffle">
+                    <span class="material-icons">shuffle</span>
+                </button>
+                <button class="control-btn" id="prevBtn" title="Previous">
+                    <span class="material-icons">skip_previous</span>
+                </button>
+                <button class="control-btn play-pause-btn" id="playPauseBtn" title="Play/Pause">
+                    <span class="material-icons">play_arrow</span>
+                </button>
+                <button class="control-btn" id="nextBtn" title="Next">
+                    <span class="material-icons">skip_next</span>
+                </button>
+                <button class="control-btn" id="repeatBtn" title="Repeat">
+                    <span class="material-icons">repeat</span>
+                </button>
+            </div>
+            <div class="progress-container">
+                <span class="time" id="currentTime">0:00</span>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <span class="time" id="totalTime">0:00</span>
+            </div>
+        </div>
+        <div class="player-right">
+            <button class="control-btn" id="queueBtn" title="Queue">
+                <span class="material-icons">queue_music</span>
+            </button>
+            <div class="volume-container">
+                <button class="control-btn" id="volumeBtn" title="Volume">
+                    <span class="material-icons">volume_up</span>
+                </button>
+                <div class="volume-bar" id="volumeBar">
+                    <div class="volume-progress" id="volumeProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundWave Pro - Login & Registration</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow-x: hidden;
+            font-size: 1rem;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(145deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%);
+            --bg-primary: rgba(10, 10, 10, 0.95);
+            --bg-secondary: rgba(26, 26, 46, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --accent-primary: #ff6b6b;
+            --accent-secondary: #4ecdc4;
+            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-light: 0 0.25rem 1.25rem rgba(255, 107, 107, 0.15);
+            --shadow-heavy: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.3);
+            --blur-bg: blur(1.25rem);
+        }
+
+        body.light-mode {
+            --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 70%, #94a3b8 100%);
+            --bg-primary: rgba(248, 250, 252, 0.95);
+            --bg-secondary: rgba(226, 232, 240, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e293b;
+            --text-secondary: rgba(30, 41, 59, 0.8);
+            --text-muted: rgba(30, 41, 59, 0.6);
+            --border-color: rgba(30, 41, 59, 0.1);
+            --shadow-light: 0 0.25rem 1.25rem rgba(255, 107, 107, 0.2);
+            --shadow-heavy: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-container {
+            background: var(--bg-card);
+            backdrop-filter: var(--blur-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 28rem;
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-toggle {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-toggle.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .auth-toggle:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-0.125rem);
+        }
+
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 0.125rem var(--accent-primary);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 0.8rem;
+            display: none;
+            margin-top: 0.25rem;
+        }
+
+        .auth-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 1.5rem;
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-0.125rem);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-0.125rem);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem;
+            justify-content: center;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--accent-gradient);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: #2ed573;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+            backdrop-filter: var(--blur-bg);
+            box-shadow: var(--shadow-heavy);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .notification-error {
+            background: #ff4757;
+        }
+
+        .notification-info {
+            background: #3742fa;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 0.95;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 0.95;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 40rem) {
+            html {
+                font-size: 14px;
+            }
+
+            .auth-container {
+                padding: 1.5rem;
+                max-width: 90vw;
+            }
+
+            .auth-header {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .auth-toggle {
+                font-size: 1rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .form-group input {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .auth-btn {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .logo-text {
+                font-size: 1.25rem;
+            }
+
+            .logo-icon {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 30rem) {
+            html {
+                font-size: 13px;
+            }
+
+            .auth-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <button class="theme-toggle" id="themeToggle">
+            <span class="material-icons">dark_mode</span>
+            <span>Theme</span>
+        </button>
+        <div class="logo">
+            <div class="logo-icon">
+                <span class="material-icons">waves</span>
+            </div>
+            <div class="logo-text">SoundWave</div>
+        </div>
+        <div class="auth-header">
+            <div class="auth-toggle active" data-form="login">Login</div>
+            <div class="auth-toggle" data-form="register">Register</div>
+        </div>
+        <form id="loginForm" class="auth-form active">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required aria-describedby="loginEmailError">
+                <span id="loginEmailError" class="error-message">Please enter a valid email address</span>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required minlength="8" aria-describedby="loginPasswordError">
+                <span id="loginPasswordError" class="error-message">Password must be at least 8 characters</span>
+            </div>
+            <button type="submit" class="auth-btn">
+                <span class="material-icons">login</span>
+                Login
+            </button>
+        </form>
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="registerUsername">Username</label>
+                <input type="text" id="registerUsername" placeholder="Choose a username" required minlength="3" aria-describedby="registerUsernameError">
+                <span id="registerUsernameError" class="error-message">Username must be at least 3 characters</span>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="Enter your email" required aria-describedby="registerEmailError">
+                <span id="registerEmailError" class="error-message">Please enter a valid email address</span>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" placeholder="Create a password" required minlength="8" aria-describedby="registerPasswordError">
+                <span id="registerPasswordError" class="error-message">Password must be at least 8 characters</span>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required minlength="8" aria-describedby="confirmPasswordError">
+                <span id="confirmPasswordError" class="error-message">Passwords do not match</span>
+            </div>
+            <button type="submit" class="auth-btn">
+                <span class="material-icons">person_add</span>
+                Register
+            </button>
+        </form>
+    </div>
+
+    <script>
+        class AuthManager {
+            constructor() {
+                this.loginForm = document.getElementById('loginForm');
+                this.registerForm = document.getElementById('registerForm');
+                this.toggleButtons = document.querySelectorAll('.auth-toggle');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.setupEventListeners();
+                this.setTheme();
+            }
+
+            setupEventListeners() {
+                // Form toggle
+                this.toggleButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.toggleForm(button.dataset.form);
+                    });
+                });
+
+                // Login form submission
+                this.loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+
+                // Register form submission
+                this.registerForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleRegister();
+                });
+
+                // Theme toggle
+                this.themeToggle.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        const activeForm = document.querySelector('.auth-form.active');
+                        const inputs = activeForm.querySelectorAll('input, button');
+                        if (e.target === inputs[inputs.length - 1] && !e.shiftKey) {
+                            e.preventDefault();
+                            inputs[0].focus();
+                        }
+                    }
+                });
+            }
+
+            toggleForm(formType) {
+                this.toggleButtons.forEach(button => {
+                    button.classList.toggle('active', button.dataset.form === formType);
+                });
+                this.loginForm.classList.toggle('active', formType === 'login');
+                this.registerForm.classList.toggle('active', formType === 'register');
+            }
+
+            validateEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            showError(inputId, show) {
+                document.getElementById(`${inputId}Error`).style.display = show ? 'block' : 'none';
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <span class="material-icons">${type === 'error' ? 'error' : type === 'info' ? 'info' : 'check_circle'}</span>
+                    <span>${message}</span>
+                `;
+                Object.assign(notification.style, {
+                    position: 'fixed',
+                    top: '2rem',
+                    right: '2rem',
+                    background: type === 'error' ? '#ff4757' : type === 'info' ? '#3742fa' : '#2ed573',
+                    color: 'white',
+                    padding: '1rem 1.5rem',
+                    borderRadius: '0.75rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    zIndex: '10000',
+                    animation: 'slideInRight 0.3s ease-out',
+                    backdropFilter: 'var(--blur-bg)',
+                    boxShadow: 'var(--shadow-heavy)',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    opacity: '0.95'
+                });
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                let valid = true;
+                if (!this.validateEmail(email)) {
+                    this.showError('loginEmail', true);
+                    valid = false;
+                } else {
+                    this.showError('loginEmail', false);
+                }
+
+                if (password.length < 8) {
+                    this.showError('loginPassword', true);
+                    valid = false;
+                } else {
+                    this.showError('loginPassword', false);
+                }
+
+                if (valid) {
+                    this.showNotification('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Replace with actual main app URL
+                    }, 2000);
+                } else {
+                    this.showNotification('Please correct the errors in the form.', 'error');
+                }
+            }
+
+            handleRegister() {
+                const username = document.getElementById('registerUsername').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                let valid = true;
+                if (username.length < 3) {
+                    this.showError('registerUsername', true);
+                    valid = false;
+                } else {
+                    this.showError('registerUsername', false);
+                }
+
+                if (!this.validateEmail(email)) {
+                    this.showError('registerEmail', true);
+                    valid = false;
+                } else {
+                    this.showError('registerEmail', false);
+                }
+
+                if (password.length < 8) {
+                    this.showError('registerPassword', true);
+                    valid = false;
+                } else {
+                    this.showError('registerPassword', false);
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('confirmPassword', true);
+                    valid = false;
+                } else {
+                    this.showError('confirmPassword', false);
+                }
+
+                if (valid) {
+                    this.showNotification('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Replace with actual main app URL
+                    }, 2000);
+                } else {
+                    this.showNotification('Please correct the errors in the form.', 'error');
+                }
+            }
+
+            toggleTheme() {
+                const isLightMode = document.body.classList.toggle('light-mode');
+                const themeIcon = this.themeToggle.querySelector('.material-icons');
+                themeIcon.textContent = isLightMode ? 'light_mode' : 'dark_mode';
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                this.showNotification(`Switched to ${isLightMode ? 'light' : 'dark'} mode`);
+            }
+
+            setTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-mode');
+                    this.themeToggle.querySelector('.material-icons').textContent = 'light_mode';
+                }
+            }
+        }
+
+        // Instantiate the auth manager
+        const auth = new AuthManager();
+    </script>
+</body>
+</html>
