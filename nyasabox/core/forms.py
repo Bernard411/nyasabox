@@ -1,5 +1,6 @@
 from django import forms
 from .models import Song, Artist
+from django.contrib.auth.models import User
 
 class SongUploadForm(forms.ModelForm):
     class Meta:
@@ -19,3 +20,9 @@ class ArtistProfileForm(forms.ModelForm):
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
+
+class ZipUploadForm(forms.Form):
+    zip_file = forms.FileField(
+        label='Upload ZIP file containing MP3s',
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.zip'})
+    )

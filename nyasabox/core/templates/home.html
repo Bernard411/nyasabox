@@ -1224,6 +1224,9 @@
                         <span class="material-icons">dark_mode</span>
                         <span>Theme</span>
                     </button>
+                     {% if user.is_superuser %}
+                <a href="{% url 'upload_zip' %}">Upload ZIP (Admin)</a>
+            {% endif %}
                     {% if user.is_authenticated %}
                     <input type="file" id="fileInput" accept="audio/*" multiple class="hidden">
                     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
@@ -1279,72 +1282,144 @@
                 </div>
             </div>
 
-            <!-- Content Sections -->
-            <div class="content">
-                <div class="section">
-                    <div class="section-header">
-                        <h2 class="section-title">Recently Played</h2>
-                        <span class="see-all">See all</span>
-                    </div>
-                    <div class="music-grid" id="musicGrid">
-                        {% for song in songs|slice:":6" %}
-                        <div class="music-card" style="animation-delay: {{ forloop.counter0|div:10 }}s;" data-index="{{ forloop.counter0 }}">
-                            {% if song.cover_image %}
-                            <div class="music-cover">
-                                <img src="{{ song.cover_image.url }}" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            {% else %}
-                            <div class="music-cover" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 {{ forloop.counter0|div:6|add:'1' }}%)">
-                                <span class="material-icons">music_note</span>
-                            </div>
-                            {% endif %}
-                            <div class="music-info">
-                                <div class="music-title">{{ song.title }}</div>
-                                <div class="music-artist">{{ song.artist.user.username }}</div>
-                            </div>
-                            <button class="play-btn" data-index="{{ forloop.counter0 }}">
-                                <span class="material-icons">play_arrow</span>
-                            </button>
-                        </div>
-                        {% empty %}
-                        <p>No songs available.</p>
-                        {% endfor %}
-                    </div>
-                </div>
+           
+
+<!-- Content Sections -->
+<div class="content">
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Latest Songs</h2>
+            <span class="see-all">See all</span>
         </div>
-        <div class="section" style="margin: 10px;">
-                    <div class="section-header">
-                        <h2 class="section-title">All Songs</h2>
-                        <span class="see-all">View playlist</span>
+        <div class="music-grid" id="musicGrid">
+            {% for song in songs|slice:":6" %}
+            <div class="music-card" style="animation-delay: {{ forloop.counter0|div:10 }}s;" data-index="{{ forloop.counter0 }}">
+                {% if song.cover_image %}
+                <div class="music-cover">
+                    <img src="{{ song.cover_image.url }}" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                {% else %}
+                <div class="music-cover" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 {{ forloop.counter0|div:6|add:'1' }}%)">
+                    <span class="material-icons">music_note</span>
+                </div>
+                {% endif %}
+                <div class="music-info">
+                    <div class="music-title">{{ song.title }}</div>
+                    <div class="music-artist">{{ song.artist.user.username }}</div>
+                </div>
+                <button class="play-btn" data-index="{{ forloop.counter0 }}">
+                    <span class="material-icons">play_arrow</span>
+                </button>
+                <button class="share-btn" data-platform="webshare" data-url="{% url 'song_detail' song.id %}" data-title="{{ song.title }} by {{ song.artist.user.username }}">
+                    <span class="material-icons">share</span>
+                </button>
+            </div>
+            {% empty %}
+            <p>No songs available.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">All Songs</h2>
+            <span class="see-all">View playlist</span>
+        </div>
+        <div class="track-list">
+            <div class="track-header">
+                <div>#</div>
+                <div>Title</div>
+                <div>Genre</div>
+                <div></div>
+            </div>
+            <div id="trackList">
+                {% for song in songs %}
+                <div class="track-item" style="animation-delay: {{ forloop.counter0|div:20 }}s;" data-index="{{ forloop.counter0 }}">
+                    <div class="track-number">{{ forloop.counter }}</div>
+                    <div class="track-info">
+                        <div class="track-title">{{ song.title }}</div>
+                        <div class="track-artist">{{ song.artist.user.username }}</div>
                     </div>
-                    <div class="track-list">
-                        <div class="track-header">
-                            <div>#</div>
-                            <div>Title</div>
-                            <div>Genre</div>
-                            <div></div>
-                        </div>
-                        <div id="trackList">
-                            {% for song in songs %}
-                            <div class="track-item" style="animation-delay: {{ forloop.counter0|div:20 }}s;" data-index="{{ forloop.counter0 }}">
-                                <div class="track-number">{{ forloop.counter }}</div>
-                                <div class="track-info">
-                                    <div class="track-title">{{ song.title }}</div>
-                                    <div class="track-artist">{{ song.artist.user.username }}</div>
-                                </div>
-                                <div class="track-duration">{{ song.genre }}</div>
-                                <div class="track-actions">
-                                    <a href="{% url 'download_song' song.id %}" class="download-btn" title="Download">
-                                        <span class="material-icons">download</span>
-                                    </a>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="track-item">No songs available.</div>
-                            {% endfor %}
-                        </div>
+                    <div class="track-duration">{{ song.genre }}</div>
+                    <div class="track-actions">
+                        <a href="{% url 'download_song' song.id %}" class="download-btn" title="Download">
+                            <span class="material-icons">download</span>
+                        </a>
+                        <button class="share-btn" data-platform="webshare" data-url="{% url 'song_detail' song.id %}" data-title="{{ song.title }} by {{ song.artist.user.username }}">
+                            <span class="material-icons">share</span>
+                        </button>
                     </div>
                 </div>
+                {% empty %}
+                <div class="track-item">No songs available.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    /* Append to the existing styles.css */
+.share-btn {
+    background: var(--bg-card);
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+}
+.share-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: scale(1.1);
+}
+.music-card .share-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    transform: scale(0);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.music-card:hover .share-btn {
+    transform: scale(1);
+}
+.track-item .track-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.song-detail {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(0.625rem);
+}
+.song-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.share-section {
+    margin-top: 1rem;
+}
+.share-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+}
+.share-section .share-btn {
+    margin-right: 0.5rem;
+}
+</style>
         </div>
     </div>
 
@@ -1416,7 +1491,7 @@
         this.volume = 0.7;
         this.currentSlide = 0;
         this.slideInterval = null;
-
+        
         this.initializePlayer();
         this.setupEventListeners();
         this.startCarousel();
@@ -1502,8 +1577,10 @@
         // Song selection
         document.querySelectorAll('.music-card, .track-item').forEach((item) => {
             item.addEventListener('click', (e) => {
+                if (e.target.classList.contains('download-btn') || e.target.classList.contains('share-btn') || e.target.closest('.share-btn')) {
+                    return;
+                }
                 const index = parseInt(item.dataset.index);
-                if (e.target.classList.contains('download-btn')) return;
                 this.playSong(index);
             });
         });
@@ -1517,20 +1594,14 @@
             });
         });
 
-        // Upload functionality
-        document.getElementById('fileInput')?.addEventListener('change', (e) => {
-            this.handleFileUpload(e);
-        });
-
-        // Fullscreen button
-        document.getElementById('fullscreenBtn')?.addEventListener('click', () => {
-            this.toggleFullscreen();
-        });
-
-        // Playlist item clicks (placeholder)
-        document.querySelectorAll('.playlist-item').forEach((item) => {
-            item.addEventListener('click', () => {
-                this.showNotification('Playlist functionality not implemented', 'info');
+        // Share buttons
+        document.querySelectorAll('.share-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const platform = btn.dataset.platform;
+                const url = btn.dataset.url;
+                const title = btn.dataset.title || 'Check out this song!';
+                this.shareSong(platform, url, title);
             });
         });
 
@@ -1573,10 +1644,10 @@
 
     playSong(index) {
         if (!this.songs[index]) return;
-
+        
         this.currentIndex = index;
         const song = this.songs[index];
-
+        
         this.audio.src = song.url;
         this.audio.play().then(() => {
             this.isPlaying = true;
@@ -1616,19 +1687,19 @@
 
     nextSong() {
         if (this.songs.length === 0) return;
-
+        
         if (this.isShuffled) {
             this.currentIndex = Math.floor(Math.random() * this.songs.length);
         } else {
             this.currentIndex = (this.currentIndex + 1) % this.songs.length;
         }
-
+        
         this.playSong(this.currentIndex);
     }
 
     previousSong() {
         if (this.songs.length === 0) return;
-
+        
         this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.songs.length - 1;
         this.playSong(this.currentIndex);
     }
@@ -1658,13 +1729,13 @@
 
     seekTo(e) {
         if (!this.audio.duration) return;
-
+        
         const progressBar = document.getElementById('progressBar');
         const rect = progressBar.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const width = rect.width;
         const duration = this.audio.duration;
-
+        
         this.audio.currentTime = (clickX / width) * duration;
     }
 
@@ -1673,7 +1744,7 @@
         const rect = volumeBar.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const width = rect.width;
-
+        
         this.volume = Math.max(0, Math.min(1, clickX / width));
         this.audio.volume = this.volume;
         this.updateVolumeDisplay();
@@ -1693,7 +1764,7 @@
     updateVolumeIcon() {
         const volumeBtn = document.getElementById('volumeBtn');
         const icon = volumeBtn.querySelector('.material-icons');
-
+        
         if (this.audio.volume === 0) {
             icon.textContent = 'volume_off';
         } else if (this.audio.volume < 0.5) {
@@ -1705,7 +1776,7 @@
 
     updateProgress() {
         if (!this.audio.duration) return;
-
+        
         const progress = (this.audio.currentTime / this.audio.duration) * 100;
         document.getElementById('progress').style.width = `${progress}%`;
         document.getElementById('currentTime').textContent = this.formatTime(this.audio.currentTime);
@@ -1723,7 +1794,7 @@
     updatePlayerDisplay() {
         const song = this.songs[this.currentIndex];
         if (!song) return;
-
+        
         document.getElementById('currentTitle').textContent = song.title;
         document.getElementById('currentArtist').textContent = song.artist;
         const cover = document.getElementById('currentCover');
@@ -1738,7 +1809,7 @@
 
     formatTime(seconds) {
         if (isNaN(seconds)) return '0:00';
-
+        
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
@@ -1747,22 +1818,22 @@
     searchSongs(query) {
         const trackItems = document.querySelectorAll('.track-item');
         const musicCards = document.querySelectorAll('.music-card');
-
+        
         const searchTerm = query.toLowerCase();
-
+        
         trackItems.forEach((item, index) => {
             const song = this.songs[index];
-            const matches = song.title.toLowerCase().includes(searchTerm) ||
+            const matches = song.title.toLowerCase().includes(searchTerm) || 
                            song.artist.toLowerCase().includes(searchTerm);
-
+            
             item.style.display = matches ? 'grid' : 'none';
         });
-
+        
         musicCards.forEach((card, index) => {
             const song = this.songs[index];
-            const matches = song.title.toLowerCase().includes(searchTerm) ||
+            const matches = song.title.toLowerCase().includes(searchTerm) || 
                            song.artist.toLowerCase().includes(searchTerm);
-
+            
             card.style.display = matches ? 'block' : 'none';
         });
     }
@@ -1771,7 +1842,7 @@
         const isLightMode = document.body.classList.toggle('light-mode');
         const themeIcon = document.getElementById('themeToggle').querySelector('.material-icons');
         themeIcon.textContent = isLightMode ? 'light_mode' : 'dark_mode';
-
+        
         localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
         this.showNotification(`Switched to ${isLightMode ? 'light' : 'dark'} mode`);
     }
@@ -1784,33 +1855,40 @@
         }
     }
 
-    handleFileUpload(e) {
-        const files = e.target.files;
-        if (files.length > 0) {
-            this.showNotification(`Selected ${files.length} file(s) for upload`, 'info');
-            // Note: Actual file upload requires server-side handling (e.g., via AJAX to Django endpoint)
-        }
-    }
+    shareSong(platform, url, title) {
+        const encodedUrl = encodeURIComponent(url);
+        const encodedTitle = encodeURIComponent(title);
 
-    toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().then(() => {
-                this.showNotification('Entered fullscreen mode');
-            }).catch((err) => {
-                this.showNotification('Failed to enter fullscreen mode', 'error');
+        if (platform === 'webshare' && navigator.share) {
+            navigator.share({
+                title: title,
+                text: `Listen to ${title} on SoundWave Pro!`,
+                url: url
+            }).then(() => {
+                this.showNotification('Song shared successfully!');
+            }).catch((error) => {
+                this.showNotification('Error sharing song', 'error');
+                console.error('Share error:', error);
             });
+        } else if (platform === 'whatsapp') {
+            window.open(`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`, '_blank');
+        } else if (platform === 'facebook') {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank');
+        } else if (platform === 'x') {
+            window.open(`https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`, '_blank');
         } else {
-            document.exitFullscreen().then(() => {
-                this.showNotification('Exited fullscreen mode');
-            }).catch((err) => {
-                this.showNotification('Failed to exit fullscreen mode', 'error');
+            // Fallback: Copy to clipboard
+            navigator.clipboard.writeText(url).then(() => {
+                this.showNotification('Link copied to clipboard!');
+            }).catch(() => {
+                this.showNotification('Failed to copy link', 'error');
             });
         }
     }
 
     handleKeyboardShortcuts(e) {
         if (e.target.tagName === 'INPUT') return;
-
+        
         switch(e.code) {
             case 'Space':
                 e.preventDefault();
@@ -1842,10 +1920,6 @@
                 this.updateVolumeDisplay();
                 this.updateVolumeIcon();
                 break;
-            case 'KeyF':
-                e.preventDefault();
-                this.toggleFullscreen();
-                break;
         }
     }
 
@@ -1856,7 +1930,7 @@
             <span class="material-icons">${type === 'error' ? 'error' : type === 'info' ? 'info' : 'check_circle'}</span>
             <span>${message}</span>
         `;
-
+        
         Object.assign(notification.style, {
             position: 'fixed',
             top: '2rem',

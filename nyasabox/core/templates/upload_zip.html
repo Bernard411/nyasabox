@@ -1,0 +1,23 @@
+
+{% block content %}
+<div class="container">
+    <h2>Upload ZIP File (Admin Only)</h2>
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if request.user.is_superuser %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Upload ZIP</button>
+        </form>
+    {% else %}
+        <p>You must be a super admin to access this page.</p>
+    {% endif %}
+    <p><a href="{% url 'home' %}">Back to Home</a></p>
+</div>
+{% endblock %}
