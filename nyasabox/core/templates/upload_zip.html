@@ -1,23 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload ZIP - SoundWave Pro{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Upload ZIP File (Admin Only)</h2>
-    {% if messages %}
-        <div class="alert alert-info">
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
+
+<div class="content">
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Upload ZIP File</h2>
         </div>
-    {% endif %}
-    {% if request.user.is_superuser %}
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Upload ZIP</button>
-        </form>
-    {% else %}
-        <p>You must be a super admin to access this page.</p>
-    {% endif %}
-    <p><a href="{% url 'home' %}">Back to Home</a></p>
+        
+        <div class="form-container" style="max-width: 600px; margin: 0 auto;">
+            <div class="info-card" style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                <h3 style="margin-bottom: 1rem; color: var(--accent-primary);">Instructions</h3>
+                <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                    <li>Upload a ZIP file containing MP3 files</li>
+                    <li>Each MP3 should have proper ID3 tags (title, artist, genre)</li>
+                    <li>Cover images embedded in MP3 files will be extracted automatically</li>
+                    <li>Artist accounts will be created automatically if they don't exist</li>
+                </ul>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_zip_file">ZIP File</label>
+                    {{ form.zip_file }}
+                    {% if form.zip_file.errors %}
+                        <div class="error">{{ form.zip_file.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="upload-btn" style="width: 100%;">
+                    <span class="material-icons">archive</span>
+                    Process ZIP File
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

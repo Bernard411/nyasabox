@@ -12,6 +12,23 @@ from django.core.files.storage import FileSystemStorage
 from PIL import Image
 import io
 import logging
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse, FileResponse
+from .models import Song, Artist
+from .forms import SongUploadForm, ArtistProfileForm, ZipUploadForm
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse, FileResponse
+from .models import Song, Artist
+from .forms import SongUploadForm, ArtistProfileForm, ZipUploadForm
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import authenticate, login, logout
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
