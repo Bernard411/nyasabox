@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="album-detail">
+    <div class="album-header">
+        <div class="album-cover">
+            {% if album.cover_image %}
+                <img src="{{ album.cover_image.url }}" alt="{{ album.title }}">
+            {% else %}
+                <div class="placeholder-cover">
+                    <span class="material-icons">album</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="album-info">
+            <h1>{{ album.title }}</h1>
+            <p class="album-artist">{{ album.artist.user.username }}</p>
+            <p class="album-type">{{ album.is_ep|yesno:"EP,Album" }}</p>
+            <p class="album-date">Released on {{ album.release_date|date:"F j, Y" }}</p>
+            <p class="album-description">{{ album.description }}</p>
+            
+            {% if user == album.artist.user %}
+            <a href="{% url 'add_to_album' album.id %}" class="form-btn">
+                <span class="material-icons">add</span>
+                Add Songs
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="track-list">
+        <div class="track-header">
+            <div>#</div>
+            <div>Title</div>
+            <div>Genre</div>
+            <div>Duration</div>
+            <div></div>
+        </div>
+        {% for song in songs %}
+        <div class="track-item">
+            <div class="track-number">{{ song.track_number }}</div>
+            <div class="track-info">
+                <div class="track-title">{{ song.title }}</div>
+                <div class="track-artist">{{ song.artist.user.username }}</div>
+            </div>
+            <div class="track-genre">{{ song.genre }}</div>
+            <div class="track-duration">-:--</div>
+            <div class="track-actions">
+                <a href="{% url 'download_song' song.id %}" class="download-btn" title="Download">
+                    <span class="material-icons">download</span>
+                </a>
+                <button class="share-btn" data-platform="webshare" data-url="{% url 'song_detail' song.id %}" data-title="{{ song.title }} by {{ song.artist.user.username }}">
+                    <span class="material-icons">share</span>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="track-item">
+            <div colspan="5" style="text-align: center; padding: 2rem;">
+                No songs in this album yet.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Add Song to "{{ album.title }}"</h2>
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <p class="notification notification-error">
+                        <span class="material-icons">error</span>
+                        <span>{{ error }}</span>
+                    </p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <div class="form-buttons">
+            <button type="submit" name="add_another" class="form-btn secondary">
+                <span class="material-icons">add</span>
+                Save and Add Another
+            </button>
+            <button type="submit" class="form-btn">
+                <span class="material-icons">check</span>
+                Save and Finish
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

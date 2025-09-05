@@ -15,8 +15,8 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, FileResponse
-from .models import Song, Artist
-from .forms import SongUploadForm, ArtistProfileForm, ZipUploadForm
+from .models import *
+from .forms import *
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
@@ -44,21 +44,98 @@ def song_detail(request, song_id):
     return render(request, 'song_detail.html', {'song': song, 'share_url': share_url})
 
 @login_required
+def upload_album(request):
+    if not hasattr(request.user, 'artist'):
+        Artist.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        form = AlbumUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            album = form.save(commit=False)
+            album.artist = request.user.artist
+            album.save()
+            messages.success(request, 'Album created successfully!')
+            return redirect('upload_song')  # Redirect to song upload to add tracks
+    else:
+        form = AlbumUploadForm()
+    return render(request, 'upload_album.html', {'form': form})
+
+@login_required
 def upload_song(request):
     if not hasattr(request.user, 'artist'):
         Artist.objects.create(user=request.user)
     
     if request.method == 'POST':
-        form = SongUploadForm(request.POST, request.FILES)
+        form = SongUploadForm(request.POST, request.FILES, artist=request.user.artist)
         if form.is_valid():
             song = form.save(commit=False)
             song.artist = request.user.artist
+            
+            # If it's part of an album, handle track numbers
+            if song.album:
+                # Check if track number is provided, if not assign next available
+                if not song.track_number:
+                    last_track = Song.objects.filter(album=song.album).order_by('-track_number').first()
+                    song.track_number = last_track.track_number + 1 if last_track else 1
+                # Ensure track number is unique for this album
+                while Song.objects.filter(album=song.album, track_number=song.track_number).exists():
+                    song.track_number += 1
+            
             song.save()
             messages.success(request, 'Song uploaded successfully!')
+            
+            # Option to add another song to the same album
+            if song.album:
+                return redirect('add_to_album', album_id=song.album.id)
             return redirect('home')
     else:
-        form = SongUploadForm()
+        form = SongUploadForm(artist=request.user.artist)
     return render(request, 'upload_song.html', {'form': form})
+
+@login_required
+def add_to_album(request, album_id):
+    album = get_object_or_404(Album, id=album_id, artist=request.user.artist)
+    
+    if request.method == 'POST':
+        form = SongUploadForm(request.POST, request.FILES, artist=request.user.artist)
+        if form.is_valid():
+            song = form.save(commit=False)
+            song.artist = request.user.artist
+            song.album = album
+            
+            # Handle track number
+            if not song.track_number:
+                last_track = Song.objects.filter(album=album).order_by('-track_number').first()
+                song.track_number = last_track.track_number + 1 if last_track else 1
+            
+            # Ensure track number is unique
+            while Song.objects.filter(album=album, track_number=song.track_number).exists():
+                song.track_number += 1
+                
+            song.save()
+            messages.success(request, 'Song added to album successfully!')
+            
+            # Option to add another song
+            if 'add_another' in request.POST:
+                return redirect('add_to_album', album_id=album.id)
+            return redirect('album_detail', album_id=album.id)
+    else:
+        # Pre-fill the album field
+        form = SongUploadForm(artist=request.user.artist, initial={'album': album})
+    
+    return render(request, 'add_to_album.html', {
+        'form': form,
+        'album': album
+    })
+
+def album_detail(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    songs = album.songs.all().order_by('track_number')
+    
+    return render(request, 'album_detail.html', {
+        'album': album,
+        'songs': songs
+    })
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)

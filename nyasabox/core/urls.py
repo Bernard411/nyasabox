@@ -12,4 +12,8 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+    path('upload/album/', views.upload_album, name='upload_album'),
+    path('album/<int:album_id>/add/', views.add_to_album, name='add_to_album'),
+    path('album/<int:album_id>/', views.album_detail, name='album_detail'),
 ]
